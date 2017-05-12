@@ -39,9 +39,7 @@ main = mainWidget $ do
   elAttr "a" ("href" =: "http://rosettacode.org/wiki/Polyspiral#Haskell") $ text "Rosetta Code / Polyspiral / Haskell"
 
   el "br" $ return ()
-  elSvgns "svg" 
-    (constDyn boardAttrs) 
-    (listWithKey dSpiralMap showLine)
+  elSvgns "svg" (constDyn boardAttrs) (listWithKey dSpiralMap showLine)
 
   return ()
 
