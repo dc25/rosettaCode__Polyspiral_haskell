@@ -35,6 +35,10 @@ main = mainWidget $ do
                   , ("viewBox", pack $ show (-width/2) ++ " " ++ show (-height/2) ++ " " ++ show width ++ " " ++ show height)
                   ]
 
+  elAttr "h1" ("style" =: "color:black") $ text "Polyspiral" 
+  elAttr "a" ("href" =: "http://rosettacode.org/wiki/Polyspiral#Haskell") $ text "Rosetta Code / Polyspiral / Haskell"
+
+  el "br" $ return ()
   elSvgns "svg" 
     (constDyn boardAttrs) 
     (listWithKey dSpiralMap showLine)
