@@ -2,7 +2,7 @@
 
 This is a Haskell implemtation of the RosettaCode task, "Polyspiral"
 
-http://rosettacode.org/wiki/Polysprial#Haskell
+http://rosettacode.org/wiki/Polyspiral#Haskell
 
 It uses the reflex library collection for display and animation.
 https://github.com/reflex-frp/reflex
