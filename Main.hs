@@ -66,7 +66,7 @@ advance angle ((x,y), len, rot) =
       new_rot = rot + angle
   in ((new_x, new_y), new_len, new_rot)
 
--- Given an angle, generate a map of segments forming a spiral.
+-- Given an angle, generate a map of segments that form a spiral.
 toSpiralMap :: Float -> Map Int ((Float,Float),(Float,Float))
 toSpiralMap angle =
       fromList                       -- changes list to map (for listWithKey)
