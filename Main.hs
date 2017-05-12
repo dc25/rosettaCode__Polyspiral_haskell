@@ -1,45 +1,64 @@
 {-# LANGUAGE OverloadedStrings #-}
--- {-# LANGUAGE ScopedTypeVariables #-}
 import Reflex
 import Reflex.Dom
 import Reflex.Dom.Time
-import Data.Map as DM (Map, fromList)
-import Data.Text (Text, pack)
+import Data.Text (Text, pack) 
+import Data.Map (Map, fromList)
 import Data.Time.Clock (getCurrentTime)
 import Control.Monad.Trans (liftIO)
 
-main :: IO ()
+width = 600
+height = 500
+
+type Point = (Float,Float)
+type Segment = (Point,Point)
+
 main = mainWidget $ do 
-  showBoard 
-
-showBoard :: MonadWidget t m => m ()
-showBoard = do
   let boardAttrs = 
-         fromList [ ("width" , "400")
-                  , ("height", "400")
+         fromList [ ("width" , pack $ show width)
+                  , ("height", pack $ show height)
                   ]
-  elSvgns "svg" (constDyn $ boardAttrs ) $ showLine 
 
-showLine :: MonadWidget t m => m ()
-showLine = do
   now <- liftIO getCurrentTime 
-  ticks <- tickLossy 0.01 now
-  counter <- foldDyn (\_ c -> c+1) (0::Int) ticks
+  dTicks <- tickLossy 0.1 now
+  dCounter <- foldDyn (\_ c -> c+1) (0::Int) dTicks
+  let dAngle =fmap (\c -> fromIntegral c / 800.0) dCounter
+      dLines = fmap toLineMap dAngle
 
-  let 
-      lineAttrs count = 
-         let slope :: Float
-             slope = fromIntegral count / 100.0 
-             len = 100.0
-         in fromList [ ("x1", "0")
-                     , ("y1", "0")
-                     , ("x2", pack $ show $ len * cos(slope))
-                     , ("y2", pack $ show $ len * sin(slope))
-                     , ("stroke-width", "2")
-                     , ("stroke", "black")
-                     ]
+  el "div" $ elSvgns "svg" (constDyn boardAttrs) $ listWithKey dLines showLine
+  return ()
 
-  elSvgns "line"  (fmap lineAttrs counter) $ return ()
+advance angle ((x,y), len, rot) = 
+  let new_x = x + len * cos rot
+      new_y = y + len * sin rot
+      new_len = len + 5.0 
+      new_rot = rot + angle
+  in ((new_x, new_y), new_len, new_rot)
+
+segments  pts  =  zip pts $ tail pts
+
+toLineMap :: Float -> Map Int ((Float,Float),(Float,Float))
+toLineMap angle =
+         fromList   -- changes list to map (for listWithKey)
+       $ zip [0..]  -- annotates segments with index
+       $ segments  -- changes points to line segments
+       $ take 40    -- limit the number of points
+       $ (\(pt,_,_) -> pt)  -- cull out the (x,y) values
+     <$> iterate (advance angle) ((0.0, 0.0), 0.0, 0.0) 
+
+lineAttrs :: Segment -> Map Text Text
+lineAttrs ((x1,y1), (x2,y2)) =
+    fromList [ ( "x1",    pack $ show (width/2+x1))
+             , ( "y1",    pack $ show (height/2+y1))
+             , ( "x2",    pack $ show (width/2+x2))
+             , ( "y2",    pack $ show (height/2+y2))
+             , ( "style", "stroke:red;stroke-width:2")
+             ]    
+         
+showLine :: MonadWidget t m => Int -> Dynamic t Segment -> m ()
+showLine _ dSegment = do
+    elSvgns "line" (lineAttrs <$> dSegment) $ return ()
+    return ()
 
 -- Wrapper around elDynAttrNS'
 elSvgns :: MonadWidget t m => Text -> Dynamic t (Map Text Text) -> m a -> m a
