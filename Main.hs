@@ -12,7 +12,7 @@ type Segment = (Point,Point)
 
 main = mainWidget $ do 
 
-  -- A dynamic value that updates every 0.05 seconds.
+  -- An event that fires every 0.05 seconds.
   dTick <- tickLossy 0.05 =<< liftIO getCurrentTime 
 
   -- A dynamically updating counter.
