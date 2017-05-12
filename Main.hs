@@ -1,11 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+-- {-# LANGUAGE ScopedTypeVariables #-}
 import Reflex
 import Reflex.Dom
 import Reflex.Dom.Time
 import Data.Map as DM (Map, fromList)
 import Data.Text (Text, pack)
-import Data.List (transpose)
 import Data.Time.Clock (getCurrentTime)
 import Control.Monad.Trans (liftIO)
 
@@ -27,14 +26,18 @@ showLine = do
   ticks <- tickLossy 0.01 now
   counter <- foldDyn (\_ c -> c+1) (0::Int) ticks
 
-  let lineAttrs count = 
-         fromList [ ("x1", "10")
-                  , ("y1", "10")
-                  , ("x2", pack $ show count)
-                  , ("y2", "10")
-                  , ("stroke-width", "2")
-                  , ("stroke", "black")
-                  ]
+  let 
+      lineAttrs count = 
+         let slope :: Float
+             slope = fromIntegral count / 100.0 
+             len = 100.0
+         in fromList [ ("x1", "0")
+                     , ("y1", "0")
+                     , ("x2", pack $ show $ len * cos(slope))
+                     , ("y2", pack $ show $ len * sin(slope))
+                     , ("stroke-width", "2")
+                     , ("stroke", "black")
+                     ]
 
   elSvgns "line"  (fmap lineAttrs counter) $ return ()
 
