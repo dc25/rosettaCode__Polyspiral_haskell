@@ -1,4 +1,4 @@
-# Kronecker Product Based Fractals
+# Polyspiral
 
 This is a Haskell implemtation of the RosettaCode task, "Polyspiral"
 
